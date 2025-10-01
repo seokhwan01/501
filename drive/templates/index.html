@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Self Driving Car - Control UI</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+<div class="top-right">
+  <button id="btnBackward" class="btn btn-backward">BACKWARD</button>
+  <button id="btnStop" class="btn btn-stop">START</button>
+</div>
+
+<div class="wrap">
+  <div class="card">
+    <h2>운전자 시점</h2>
+    <img id="video">
+    
+    <div class="kpi">
+      <div class="box">
+          <div class="label">현재 / 총 차선</div>
+          <div class="val"><span id="lane_info">?</span> / <span id="lane_total_info">3</span></div>
+      </div>
+      <div class="box"><div class="label">속도</div><div class="val" id="speed_info">0.00</div></div>
+      <div class="box"><div class="label">상태</div><div class="val" id="state_info">-</div></div>
+      <div class="box"><div class="label">조향각</div><div class="val" id="steering_angle_info">0.0</div></div>
+    </div>
+    
+    <div class="help">
+      키보드: <kbd>←/→</kbd> 회전, <kbd>↑/↓</kbd> 속도, <kbd>Space</kbd> 정지/재개, <kbd>B</kbd> 후진, <kbd>Q</kbd> 종료
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
