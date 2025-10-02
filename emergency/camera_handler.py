@@ -77,9 +77,9 @@ class CameraHandler:
             print("[CameraHandler] 녹화 종료")
 
             # 변환된 파일 이름 (H.264)
-            converted_path = self.file_path.replace(".mp4", ".mp4")
+            converted_path = self.file_path 
 
-            # ffmpeg로 H.264 변환
+            # ffmpeg로 원본 파일 덮어쓰기 (mp4v → h264)
             try:
                 subprocess.run([
                     "ffmpeg", "-y", "-i", self.file_path,
