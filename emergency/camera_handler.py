@@ -82,10 +82,10 @@ class CameraHandler:
             # ffmpeg로 원본 파일 덮어쓰기 (mp4v → h264)
             try:
                 subprocess.run([
-                    "ffmpeg", "-y", "-i", self.file_path,
-                    "-vcodec", "libx264", "-acodec", "aac",
-                    converted_path
-                ], check=True)
+                "ffmpeg", "-y", "-fflags", "+genpts", "-i", self.file_path,
+                "-vcodec", "libx264", "-acodec", "aac",
+                converted_path
+            ], check=True)
                 print(f"🎬 ffmpeg 변환 완료: {converted_path}")
             except Exception as e:
                 print(f"❌ ffmpeg 변환 실패: {e}")
