@@ -5,6 +5,7 @@ from datetime import datetime
 import os
 from s3_client import s3, bucket_name
 from config import Config
+import subprocess
 
 save_dir = os.path.abspath("videos")
 os.makedirs(save_dir, exist_ok=True)
@@ -75,10 +76,25 @@ class CameraHandler:
             self.out.release()
             print("[CameraHandler] 녹화 종료")
 
-            # S3 업로드
-            s3_key = f"videos/{self.file_name}"
+            # 변환된 파일 이름 (H.264)
+            converted_path = self.file_path.replace(".mp4", "_h264.mp4")
+
+            # ffmpeg로 H.264 변환
             try:
-                s3.upload_file(self.file_path, bucket_name, s3_key,
+                subprocess.run([
+                    "ffmpeg", "-y", "-i", self.file_path,
+                    "-vcodec", "libx264", "-acodec", "aac",
+                    converted_path
+                ], check=True)
+                print(f"🎬 ffmpeg 변환 완료: {converted_path}")
+            except Exception as e:
+                print(f"❌ ffmpeg 변환 실패: {e}")
+                return
+
+            # 변환된 파일 S3 업로드
+            s3_key = f"videos/{os.path.basename(converted_path)}"
+            try:
+                s3.upload_file(converted_path, bucket_name, s3_key,
                                ExtraArgs={'ContentType': 'video/mp4'})
                 print(f"✅ 업로드 완료 → https://{bucket_name}.s3.us-east-1.amazonaws.com/{s3_key}")
             except Exception as e:
