@@ -76,29 +76,34 @@ class CameraHandler:
             self.out.release()
             print("[CameraHandler] 녹화 종료")
 
-            # 변환된 파일 이름 (H.264)
-            converted_path = self.file_path 
+            # 임시 파일명 (덮어쓰기 방지용)
+            tmp_path = self.file_path.replace(".mp4", "_tmp.mp4")
 
-            # ffmpeg로 원본 파일 덮어쓰기 (mp4v → h264)
             try:
+                # ffmpeg 변환 (임시 파일에 저장)
                 subprocess.run([
-                "ffmpeg", "-y", "-fflags", "+genpts", "-i", self.file_path,
-                "-vcodec", "libx264", "-acodec", "aac",
-                converted_path
-            ], check=True)
-                print(f"🎬 ffmpeg 변환 완료: {converted_path}")
+                    "ffmpeg", "-y", "-fflags", "+genpts", "-i", self.file_path,
+                    "-vcodec", "libx264", "-acodec", "aac",
+                    tmp_path
+                ], check=True)
+
+                # 변환된 파일을 원래 이름으로 덮어쓰기
+                os.replace(tmp_path, self.file_path)
+                print(f"🎬 ffmpeg 변환 완료 (원래 이름 유지): {self.file_path}")
+
             except Exception as e:
                 print(f"❌ ffmpeg 변환 실패: {e}")
                 return
 
-            # 변환된 파일 S3 업로드
-            s3_key = f"videos/{os.path.basename(converted_path)}"
+            # S3 업로드 (원래 파일명 그대로)
+            s3_key = f"videos/{os.path.basename(self.file_path)}"
             try:
-                s3.upload_file(converted_path, bucket_name, s3_key,
-                               ExtraArgs={'ContentType': 'video/mp4'})
+                s3.upload_file(self.file_path, bucket_name, s3_key,
+                            ExtraArgs={'ContentType': 'video/mp4'})
                 print(f"✅ 업로드 완료 → https://{bucket_name}.s3.us-east-1.amazonaws.com/{s3_key}")
             except Exception as e:
                 print(f"❌ 업로드 실패: {e}")
+
 
 
 # -------------------------------
