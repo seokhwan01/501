@@ -11,6 +11,9 @@ from car_modules.motor_controller import MotorController
 from car_modules.lane_detector import LaneDetector
 from shared_state import shared_data, lock
 
+import logging
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
+
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
 with open(CONFIG_PATH, "r") as f:
     config = json.load(f)
