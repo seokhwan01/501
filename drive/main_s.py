@@ -104,9 +104,10 @@ def api_control():
 # --- 메인 루프 ---
 def processing_loop():
     global last_lane, candidate_lane, candidate_count  # 전역 변수 사용 선언
-    # picam2.start(); time.sleep(0.2) 노트북 용 주석 처리
-    ret, frame = cap.read()
+    picam2.start()
     time.sleep(0.2)
+    # ret, frame = cap.read()
+    # time.sleep(0.2)
     
     try:
         while shared_data["running"]:
