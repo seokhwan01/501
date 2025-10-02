@@ -18,9 +18,9 @@ CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
 with open(CONFIG_PATH, "r") as f:
     config = json.load(f)
 
-MQTT_BROKER = config.get("MQTT_BROKER")
+MQTT_BROKER = config.get("MQTT_BROKER","localhost")
 MQTT_PORT   = config.get("MQTT_PORT", 1883)
-MQTT_TOPIC  = config.get("MQTT_TOPIC", "car/current_lane")
+
 
 # --- MQTT 클라이언트 초기화 ---
 mqtt_client = mqtt.Client()
@@ -66,6 +66,7 @@ def index_page(): return render_template("index.html")
 @app.route("/api/status")
 def api_status():
     with lock: return jsonify(shared_data["ui"])
+
 @app.route("/api/control", methods=["POST"])
 def api_control():
     data = request.json or {}
@@ -106,9 +107,7 @@ def processing_loop():
     global last_lane, candidate_lane, candidate_count  # 전역 변수 사용 선언
     picam2.start()
     time.sleep(0.2)
-    # ret, frame = cap.read()
-    # time.sleep(0.2)
-    
+
     try:
         while shared_data["running"]:
             frame = picam2.capture_array()

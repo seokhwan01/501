@@ -8,14 +8,18 @@ class MqttPublisher:
         self.client.connect(broker, port, 60)
         self.client.loop_start()
 
-    def publish(self, topic, payload):
-        self.client.publish(topic, json.dumps(payload, ensure_ascii=False))
+    def publish(self, topic, payload, qos=0, retain=False):
+        self.client.publish(topic, json.dumps(payload, ensure_ascii=False), qos=qos, retain=retain)
 
     def send_start(self, car, origin, dest, start_time):
-        self.publish("ambulance/web/start", {
-            "car": car, "origin": origin, "dest": dest,
-            "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S")
-        })
+        self.publish(
+            "ambulance/web/start", 
+            {
+                "car": car, "origin": origin, "dest": dest,
+                "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S")
+            },
+            qos=1  # ✅ 중요 이벤트이므로 반드시 도달하도록 QoS 1
+        )
 
     def send_route(self, car, dest, route_points, current):
         self.publish("ambulance/web/route", {
@@ -42,11 +46,15 @@ class MqttPublisher:
 
 
     def send_arrival(self, car, dest, start_time):
-        self.publish("ambulance/web/arrival", {
-            "car": car,
-            "dest": dest,
-            "status": "arrived",
-            "start_time": start_time,  # ✅ 추가
-            "arrival_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "message": f"{dest} 도착 완료 🚑"
-        })
+        self.publish(
+            "ambulance/web/arrival", 
+            {
+                "car": car,
+                "dest": dest,
+                "status": "arrived",
+                "start_time": start_time,  # ✅ 추가
+                "arrival_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                "message": f"{dest} 도착 완료 🚑"
+            },
+            qos=1  # ✅ 중요 이벤트 → QoS 1로 보장 전송
+        )

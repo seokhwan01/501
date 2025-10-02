@@ -113,7 +113,7 @@ camera_handler = CameraHandler()
 
 @sio_car.on("video_frame")
 def on_video_frame(data):
-    print("[DEBUG] video_frame 수신, data 길이:", len(data.get("img","")))
+    # print("[DEBUG] video_frame 수신, data 길이:", len(data.get("img","")))
     try:
         jpg_as_text = data["img"]
 
