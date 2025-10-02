@@ -19,7 +19,7 @@ PORT = 6000 #소켓 포트임 안드로이드 앱이랑
 
 kakao = KakaoClient(api_key=Config.REST_API_KEY)
 publisher = MqttPublisher(broker=Config.MQTT_BROKER, port=Config.MQTT_PORT)
-lcd = LcdDisplay()
+lcd = LcdDisplay(vehicle_name="119da 119",vehicle_ip="192.168.137.238")
 
 # -------------------------------
 # MQTT Subscriber (구급차 → feedback 수신)
@@ -168,8 +168,8 @@ def main():
     except KeyboardInterrupt:
         print("\n🛑 서버 종료 중...")
         server.close()
-        sys.exit(0)
         lcd.stop()
+        sys.exit(0)
 
 if __name__ == "__main__":
     start_feedback_listener()

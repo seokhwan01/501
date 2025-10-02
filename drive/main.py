@@ -9,9 +9,6 @@ from picamera2 import Picamera2
 # --- Car 관련 모듈 ---
 from car_modules.motor_controller import MotorController
 from car_modules.lane_detector import LaneDetector
-from car_modules.lcd_display import LcdDisplay
-from car_modules.tts_handler import announce_evasion
-
 from shared_state import shared_data, lock
 
 CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
@@ -51,7 +48,7 @@ STABLE_THRESHOLD = 3    # 몇 번 연속 들어와야 확정할지
 
 motor = MotorController(MOTOR_PINS)
 detector = LaneDetector()
-lcd = LcdDisplay()
+
 
 app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins="*", async_mode="threading")
@@ -183,14 +180,13 @@ def processing_loop():
 # --- 실행 ---
 if __name__ == "__main__":
     try:
-        lcd.start()
         threading.Thread(target=processing_loop, daemon=True).start()
         socketio.run(app, host="0.0.0.0", port=5000, debug=True, use_reloader=False)
 
     finally:
         shared_data["running"] = False
         motor.stop()
-        lcd.stop()
+
         time.sleep(0.2)
 
  
