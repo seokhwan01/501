@@ -56,11 +56,12 @@ class CameraHandler:
         self.file_name = f"{safe_car_id}_{ts}.mp4"
         self.file_path = os.path.join(save_dir, self.file_name)
         self.out = cv2.VideoWriter(
-            self.file_path,
-            cv2.VideoWriter_fourcc(*'avc1'),
-            15.0,
-            (640, 360)
-        )
+        self.file_path,
+        cv2.VideoWriter_fourcc(*'mp4v'),  # ✅ 여기서 mp4v로
+        15.0,
+        (640, 360)
+    )
+
         self.running = True
         print(f"[CameraHandler] 녹화 시작: {self.file_path}")
 
