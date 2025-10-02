@@ -1,15 +1,15 @@
+
 import smbus2
 import time
 import threading
 import os
 
 class LcdDisplay:
-    def __init__(self, i2c_addr=0x27, lcd_width=20, vehicle_name="CAR", vehicle_ip=None):
+    def __init__(self, i2c_addr=0x27, lcd_width=20, vehicle_name="119ga 119"):
         self.I2C_ADDR = i2c_addr
         self.LCD_WIDTH = lcd_width
         self.VEHICLE_NAME = vehicle_name
-        self.VEHICLE_IP = self._get_local_ip(vehicle_ip)
-
+        self.VEHICLE_IP = self._get_local_ip()
         # LCD 상수
         self.LCD_CHR = 1
         self.LCD_CMD = 0
@@ -22,8 +22,7 @@ class LcdDisplay:
         self._lock = threading.Lock()
         self._latest_eta_minutes = None
 
-    def _get_local_ip(self, static_ip=None):
-        if static_ip: return static_ip
+    def _get_local_ip(self):
         try:
             return os.popen("hostname -I").read().strip().split()[0]
         except Exception:
@@ -54,50 +53,37 @@ class LcdDisplay:
         time.sleep(0.005)
 
     def print_line(self, line, message):
+        # 먼저 라인 전체 지움 (공백으로 채움)
+        clear_msg = " " * self.LCD_WIDTH
+        self._write(self.LINE_ADDR[line], self.LCD_CMD)
+        for char in clear_msg:
+            self._write(ord(char), self.LCD_CHR)
+
         message = message.ljust(self.LCD_WIDTH, " ")
         self._write(self.LINE_ADDR[line], self.LCD_CMD)
         for char in message[:self.LCD_WIDTH]:
             self._write(ord(char), self.LCD_CHR)
 
-    def _update_loop(self):
-        while self._thread_running:
-            try:
-                with self._lock:
-                    eta_min = self._latest_eta_minutes
-                
-                eta_text = f"ETA: {eta_min:02d} min" if eta_min is not None else "ETA: -- min"
-                
-                self.print_line(0, f"{self.VEHICLE_NAME}")
-                self.print_line(1, f"IP: {self.VEHICLE_IP}")
-                self.print_line(2, eta_text)
-                
-                if eta_min is not None and eta_min <= 3:
-                    self.print_line(3, "Approaching")
-                else:
-                    self.print_line(3, "")
-                    
-            except Exception as e:
-                print(f"[LCD] Update loop error: {e}")
-                time.sleep(2)
-            time.sleep(1)
-
-    def update_eta(self, minutes):
-        with self._lock:
-            self._latest_eta_minutes = minutes
+    # 🚑 상태 업데이트 (출발/종료만 표시)
+    def update_status(self, state):
+        self.print_line(0, f"{self.VEHICLE_NAME}")
+        self.print_line(1, f"IP: {self.VEHICLE_IP}")
+        if state == "start":
+            self.print_line(2, "Dispatching".ljust(self.LCD_WIDTH))
+        elif state == "finished":
+            self.print_line(2, "Finished".ljust(self.LCD_WIDTH))
+        else:
+            self.print_line(2, "Standby".ljust(self.LCD_WIDTH))
 
     def start(self):
         try:
             self._bus = smbus2.SMBus(1)
             self._init_lcd()
-            self._thread_running = True
-            threading.Thread(target=self._update_loop, daemon=True).start()
-            print("[LCD] started.")
+            print("[LCD] ready.")
         except Exception as e:
             print(f"[LCD] init failed: {e}")
 
     def stop(self):
-        self._thread_running = False
-        time.sleep(0.1)
         try:
             if self._bus is not None:
                 self._bus.close()

@@ -18,7 +18,7 @@ class MqttPublisher:
                 "car": car, "origin": origin, "dest": dest,
                 "start_time": start_time.strftime("%Y-%m-%d %H:%M:%S")
             },
-            qos=1  # ✅ 중요 이벤트이므로 반드시 도달하도록 QoS 1
+            qos=2  # ✅ 중요 이벤트이므로 반드시 도달하도록 QoS 2
         )
 
     def send_route(self, car, dest, route_points, current):
@@ -56,5 +56,5 @@ class MqttPublisher:
                 "arrival_time": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
                 "message": f"{dest} 도착 완료 🚑"
             },
-            qos=1  # ✅ 중요 이벤트 → QoS 1로 보장 전송
+            qos=2  # ✅ 중요 이벤트 → QoS 2로 보장 전송
         )

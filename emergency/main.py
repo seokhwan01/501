@@ -10,7 +10,7 @@ import csv_logger
 from csv_logger import log_feedback
 from camera_handler import start_camera_relay, camera_handler, sio_car
 from config import Config
-
+from lcd_display import LcdDisplay
 
 is_driving = False  # 전역 플래그
 HOST = "0.0.0.0"
@@ -19,7 +19,7 @@ PORT = 6000 #소켓 포트임 안드로이드 앱이랑
 
 kakao = KakaoClient(api_key=Config.REST_API_KEY)
 publisher = MqttPublisher(broker=Config.MQTT_BROKER, port=Config.MQTT_PORT)
-
+lcd = LcdDisplay()
 
 # -------------------------------
 # MQTT Subscriber (구급차 → feedback 수신)
@@ -73,6 +73,7 @@ def start_feedback_listener():
 def simulate_drive(car, dest, kakao_json, start_time):
     global is_driving
     start_camera_relay(car, start_time)  # ✅ 라즈 연결 + 녹화 시작
+    lcd.update_status(state="dispatch")
 
     full_points = kakao.extract_all_points(kakao_json)
     web_points  = kakao.extract_web_points(kakao_json)
@@ -100,6 +101,7 @@ def simulate_drive(car, dest, kakao_json, start_time):
     camera_handler.stop_and_upload()   # ✅ 전역 인스턴스 종료
     sio_car.disconnect()
     csv_logger.stop_csv_logging()
+    lcd.update_status(state="finished")
     is_driving = False
 
 
@@ -167,7 +169,9 @@ def main():
         print("\n🛑 서버 종료 중...")
         server.close()
         sys.exit(0)
+        lcd.stop()
 
 if __name__ == "__main__":
     start_feedback_listener()
+    lcd.start()
     main()
