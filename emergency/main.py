@@ -29,10 +29,11 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("ambulance/feedback")  # 🚗 차량 피드백 토픽 구독
 
 def on_message(client, userdata, msg):
-    # print("mqtt받음")
     global is_driving
-
+    raw = msg.payload.decode()
+    print(f"📩 MQTT 메시지 도착: {raw}")
     print(f"flag : {is_driving}")
+
     if not is_driving:
         return  # 주행 중이 아닐 때는 무시
     try:
