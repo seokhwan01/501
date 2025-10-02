@@ -176,21 +176,6 @@ def processing_loop():
                     jpg_as_text = base64.b64encode(buf).decode('utf-8') 
                     socketio.emit("video_frame", {"img": jpg_as_text})
 
-                # # --- current_lane만 MQTT로 송출 --- 추가
-                # if current_lane is not None:
-                #     if current_lane == candidate_lane:
-                #         candidate_count += 1
-                #     else:
-                #         candidate_lane = current_lane
-                #         candidate_count = 1
-
-                #     # 후보가 3번 연속 나오면 확정 발송
-                #     if candidate_count >= STABLE_THRESHOLD and candidate_lane != last_lane:
-                #         mqtt_client.publish("car/current_lane", int(candidate_lane))
-                #         print(f"✅ 차선 변경 확정 → {candidate_lane}")
-                #         last_lane = candidate_lane
-
-            time.sleep(0.05)
     finally:  # <-- 반드시 finally로 자원 정리
         motor.stop()
         # cap.release()
