@@ -181,7 +181,7 @@ def processing_loop():
 if __name__ == "__main__":
     try:
         threading.Thread(target=processing_loop, daemon=True).start()
-        socketio.run(app, host="0.0.0.0", port=5000, debug=True, use_reloader=False)
+        socketio.run(app, host="0.0.0.0", port=5000, debug=False, use_reloader=False)
 
     finally:
         shared_data["running"] = False
