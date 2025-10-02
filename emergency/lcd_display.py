@@ -72,14 +72,17 @@ class LcdDisplay:
             self.print_line(2, "Dispatching".ljust(self.LCD_WIDTH))
         elif state == "finished":
             self.print_line(2, "Finished".ljust(self.LCD_WIDTH))
-        else:
+        elif state == "standby":
             self.print_line(2, "Standby".ljust(self.LCD_WIDTH))
+        else:
+            self.print_line(2, "Error".ljust(self.LCD_WIDTH))
 
     def start(self):
         try:
             self._bus = smbus2.SMBus(1)
             self._init_lcd()
             print("[LCD] ready.")
+            self.update_status("standby")   # 기본 표시
         except Exception as e:
             print(f"[LCD] init failed: {e}")
 
@@ -89,5 +92,6 @@ class LcdDisplay:
                 self._bus.close()
                 self._bus = None
                 print("[LCD] stopped.")
+                
         except Exception as e:
             print(f"[LCD] stop error: {e}")
