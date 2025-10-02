@@ -45,7 +45,7 @@ class LcdDisplay:
 
     def _init_lcd(self):
         self._write(0x33, self.LCD_CMD)
-        self.  _write(0x32, self.LCD_CMD)
+        self._write(0x32, self.LCD_CMD)
         self._write(0x06, self.LCD_CMD)
         self._write(0x0C, self.LCD_CMD)
         self._write(0x28, self.LCD_CMD)

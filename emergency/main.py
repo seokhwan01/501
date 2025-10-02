@@ -73,7 +73,7 @@ def start_feedback_listener():
 def simulate_drive(car, dest, kakao_json, start_time):
     global is_driving
     start_camera_relay(car, start_time)  # ✅ 라즈 연결 + 녹화 시작
-    lcd.update_status(state="dispatch")
+    lcd.update_status(state="start")
 
     full_points = kakao.extract_all_points(kakao_json)
     web_points  = kakao.extract_web_points(kakao_json)
