@@ -34,6 +34,7 @@ def on_message(client, userdata, msg):
     print(f"📩 MQTT 메시지 도착: {raw}")
     print(f"flag : {is_driving}")
 
+
     if not is_driving:
         return  # 주행 중이 아닐 때는 무시
     try:
@@ -62,7 +63,7 @@ def start_feedback_listener():
     client = mqtt.Client(client_id="ambulance-subscriber")
     client.on_connect = on_connect
     client.on_message = on_message
-    client.connect("localhost", 1883, 60)
+    client.connect(Config.MQTT_BROKER, Config.MQTT_PORT, 60)
     client.loop_start()
     return client
 
