@@ -51,7 +51,7 @@ STABLE_THRESHOLD = 3    # 몇 번 연속 들어와야 확정할지
 
 motor = MotorController(MOTOR_PINS)
 detector = LaneDetector()
-lcd = LcdDisplay(vehicle_name="CAR 2", vehicle_ip="192.168.137.2")
+lcd = LcdDisplay()
 
 app = Flask(__name__)
 socketio = SocketIO(app,cors_allowed_origins="*", async_mode="threading")

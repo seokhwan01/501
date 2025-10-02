@@ -90,7 +90,7 @@ def simulate_drive(car, dest, kakao_json, start_time):
         publisher.send_current(car, dest, coord, route_info=kakao_json, web=False)
         print(f"📡 웹/차량 발행 {i}/{len(full_points)}")
         # time.sleep(0.2)
-        time.sleep(0.1)
+        time.sleep(1.0)
 
     # 도착 알림
     publisher.send_arrival(car, dest, start_time.strftime("%Y-%m-%d %H:%M:%S"))

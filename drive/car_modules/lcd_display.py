@@ -5,7 +5,7 @@ import threading
 import os
 
 class LcdDisplay:
-    def __init__(self, i2c_addr=0x27, lcd_width=20, vehicle_name="CAR", vehicle_ip=None):
+    def __init__(self, i2c_addr=0x27, lcd_width=20, vehicle_name="119da 119", vehicle_ip=None):
         self.I2C_ADDR = i2c_addr
         self.LCD_WIDTH = lcd_width
         self.VEHICLE_NAME = vehicle_name
@@ -24,7 +24,8 @@ class LcdDisplay:
         self._latest_eta_minutes = None
 
     def _get_local_ip(self, static_ip=None):
-        if static_ip: return static_ip
+        if static_ip: 
+            return static_ip
         try:
             return os.popen("hostname -I").read().strip().split()[0]
         except Exception:
