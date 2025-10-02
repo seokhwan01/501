@@ -3,6 +3,8 @@ import cv2
 import paho.mqtt.client as mqtt
 from flask import Flask, render_template, jsonify, request
 from flask_socketio import SocketIO, emit
+from picamera2 import Picamera2
+
 
 # --- Car 관련 모듈 ---
 from car_modules.motor_controller import MotorController
@@ -16,7 +18,7 @@ CONFIG_PATH = os.path.join(os.path.dirname(__file__), "config.json")
 with open(CONFIG_PATH, "r") as f:
     config = json.load(f)
 
-MQTT_BROKER = config.get("MQTT_BROKER", "localhost")
+MQTT_BROKER = config.get("MQTT_BROKER")
 MQTT_PORT   = config.get("MQTT_PORT", 1883)
 MQTT_TOPIC  = config.get("MQTT_TOPIC", "car/current_lane")
 
@@ -36,14 +38,9 @@ CAMERA_FOV_DEG = 62.0
 PIXEL_TO_DEG = CAMERA_FOV_DEG / W
 
 # --- 객체 초기화 ---
-# picam2 = Picamera2()
-# cfg = picam2.create_video_configuration(main={"size": (W,H), "format":"RGB888"}, controls={"FrameRate": FPS})
-# picam2.configure(cfg)
-#### 노트북용 주석 처리
-cap = cv2.VideoCapture(0)  # 0은 기본 내장 웹캠
-cap.set(cv2.CAP_PROP_FRAME_WIDTH, W)
-cap.set(cv2.CAP_PROP_FRAME_HEIGHT, H)
-cap.set(cv2.CAP_PROP_FPS, FPS)
+picam2 = Picamera2()
+cfg = picam2.create_video_configuration(main={"size": (W,H), "format":"RGB888"}, controls={"FrameRate": FPS})
+picam2.configure(cfg)
 
 
 last_lane = None        # 마지막 확정된 차선
@@ -103,20 +100,6 @@ def api_control():
     return jsonify(response)
 
 
-# @app.route("/api/emergency_event", methods=["POST"])
-# def api_emergency_event():
-#     data = request.json
-#     direction = data.get("direction", "오른쪽"); minutes = data.get("minutes", 1)
-#     with lock: shared_data["is_evasion_mode"] = True
-#     lcd.update_eta(minutes)
-#     announce_evasion(direction, minutes)
-#     return jsonify(ok=True, message="Evasion mode activated.")
-
-# @app.route("/api/clear_emergency_event", methods=["POST"])
-# def api_clear_emergency_event():
-#     with lock: shared_data["is_evasion_mode"] = False
-#     lcd.update_eta(None)
-#     return jsonify(ok=True, message="Evasion mode cleared.")
 
 # --- 메인 루프 ---
 def processing_loop():
@@ -127,14 +110,10 @@ def processing_loop():
     
     try:
         while shared_data["running"]:
-            # frame = picam2.capture_array(); h, w = frame.shape[:2]; cx = w//2 노트북 용 주석 처리
-            ###노트북 용
-            ret, frame = cap.read()
-            if not ret:
-                continue
+            frame = picam2.capture_array()
             h, w = frame.shape[:2]
-            cx = w // 2
-            ##
+            cx = w//2 
+
 
             try:
                 result = detector.process_frame(frame)
@@ -213,8 +192,8 @@ def processing_loop():
             time.sleep(0.05)
     finally:  # <-- 반드시 finally로 자원 정리
         motor.stop()
-        cap.release()
-        # picam2.stop()
+        # cap.release()
+        picam2.stop()
 
 # --- 실행 ---
 if __name__ == "__main__":
