@@ -12,7 +12,8 @@ class KakaoClient:
             "origin": f"{origin_lng},{origin_lat}",
             "destination": f"{dest_lng},{dest_lat}",
             "road_details": True,
-            "waypoints": "126.9821635,37.4853994"
+            "waypoints": "126.9821635,37.4853994", # 🚩 이수역 경유지
+            "priority": "DISTANCE"   # ← 최단 거리 기준 (재현성 ↑)
         }
         response = requests.get(self.api_url, headers=headers, params=params)
 
